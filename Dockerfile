@@ -1,17 +1,17 @@
 # https://hg.nginx.org/nginx/file/tip/src/core/nginx.h
-ARG NGINX_VERSION=1.25.1
+ARG NGINX_VERSION=1.25.2
 
 # https://hg.nginx.org/nginx
-ARG NGINX_COMMIT=5b8854a2f79c
+ARG NGINX_COMMIT=904c99bede17
 
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
 
 # https://github.com/google/boringssl
-ARG BORINGSSL_COMMIT=e1b8685770d0e82e5a4a3c5d24ad1602e05f2e83
+ARG BORINGSSL_COMMIT=d95b03c315bac8c44d3ce062053d3a5817915d91
 
 # http://hg.nginx.org/njs
-ARG NJS_COMMIT=a1faa64d4972
+ARG NJS_COMMIT=3af6c729b7cb
 
 # https://github.com/openresty/headers-more-nginx-module#installation
 # we want to have https://github.com/openresty/headers-more-nginx-module/commit/e536bc595d8b490dbc9cf5999ec48fca3f488632
@@ -74,7 +74,7 @@ ARG CONFIG="\
 		--add-dynamic-module=/usr/src/ngx_http_geoip2_module \
 	"
 
-FROM alpine:3.17 AS base
+FROM alpine:3.18 AS base
 
 ARG NGINX_VERSION
 ARG NGINX_COMMIT
@@ -185,7 +185,7 @@ RUN \
 	\
 	# https://tools.ietf.org/html/rfc7919
 	# https://github.com/mozilla/ssl-config-generator/blob/master/docs/ffdhe2048.txt
-	&& wget -q https://ssl-config.mozilla.org/ffdhe2048.txt -O /etc/ssl/dhparam.pem \
+	# && wget -q https://ssl-config.mozilla.org/ffdhe2048.txt -O /etc/ssl/dhparam.pem \
 	\
 	# Bring in gettext so we can get `envsubst`, then throw
 	# the rest away. To do this, we need to install `gettext`
@@ -199,7 +199,7 @@ RUN \
 			| xargs -r apk info --installed \
 			| sort -u > /tmp/runDeps.txt
 
-FROM alpine:3.17
+FROM alpine:3.18
 ARG NGINX_VERSION
 ARG NGINX_COMMIT
 
@@ -212,7 +212,7 @@ COPY --from=base /usr/lib/nginx/modules/*.so /usr/lib/nginx/modules/
 COPY --from=base /usr/sbin/nginx /usr/sbin/
 COPY --from=base /usr/local/lib/perl5/site_perl /usr/local/lib/perl5/site_perl
 COPY --from=base /usr/bin/envsubst /usr/local/bin/envsubst
-COPY --from=base /etc/ssl/dhparam.pem /etc/ssl/dhparam.pem
+# COPY --from=base /etc/ssl/dhparam.pem /etc/ssl/dhparam.pem
 
 COPY --from=base /usr/sbin/njs /usr/sbin/njs
 
